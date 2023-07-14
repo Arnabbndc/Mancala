@@ -22,6 +22,5 @@ public class Main {
         int pit= scanner.nextInt();
         game.choosePitForMove(pit);
         game.getBoard().printBoard();
-
     }
 }
