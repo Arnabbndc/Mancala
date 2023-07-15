@@ -1,79 +1,76 @@
 public class Game {
     private Board board;
-    private boolean isPlayer1Active;
-    public boolean autoPlay;
-    public Game(boolean autoPlay){
+    public Game(){
         board= new Board();
-        isPlayer1Active=true;
-        this.autoPlay= autoPlay;
+        board.setPlayer1Active(true);
     }
 
     public Board getBoard() {
         return board;
     }
 
-    public boolean choosePitForMove(int pitNo){
-
-        if (pitNo < 1 || pitNo > 6) {
-            System.out.println("Invalid Pit selected...\nSelect Again!");
-            return false;
-        }
-        int offset;
-        if(isPlayer1Active) {
-            offset=6;
-        }
-        else offset=-1;
-        int stones = board.getStonesInPit(pitNo + offset), stNo = stones;
-        if (stones == 0) {
-            System.out.println("Invalid choice.\n Select a non-empty pit again!");
-            return false;
-        }
-        board.setStonesInPit(pitNo + offset, 0);
-        for (int i = pitNo + offset+1; stNo > 0; i++) {
-            if (i % 14 != 12-offset) {
-                board.addAStone(i % 14);
-                stNo--;
-            }
-        }
-        if(7 - pitNo != stones) {
-            isPlayer1Active = !isPlayer1Active;
-            if((pitNo+offset+stones)%14>offset && (pitNo+offset+stones)%14<=offset+6 && board.getStonesInPit((pitNo+offset+stones)%14)==1 && board.getStonesInPit(12-((pitNo+offset+stones)%14))!=0 ){
-                board.setStonesInPit((pitNo+offset+stones)%14,0);
-                board.setStonesInPit(7+offset,1+board.getStonesInPit(12-((pitNo+offset+stones)%14)));
-                board.setStonesInPit(12-((pitNo+offset+stones)%14),0);
-            }
-        }
-
-//        else{
-//            if (pitNo < 1 || pitNo > 6) {
-//                System.out.println("Invalid Pit selected...\nSelect Again!");
-//                return false;
-//            }
-//            int stones = board.getStonesInPit(pitNo-1 ), stNo = stones;
-//            if (stones == 0) {
-//                System.out.println("Invalid choice.\n Select a non-empty pit again!");
-//                return false;
-//            }
-//            board.setStonesInPit(pitNo -1, 0);
-//            for (int i = pitNo; stNo > 0; i++) {
-//                if (i % 14 != 13) {
-//                    board.addAStone(i % 14);
-//                    stNo--;
-//                }
-//            }
-//            if(7 - pitNo == stones)
-//                isPlayer1Active = false;
-//            else {
-//                isPlayer1Active = true;
-//                if((pitNo-1+stones)%14<6 && board.getStonesInPit((pitNo-1+stones)%14)==1 && board.getStonesInPit(12-((pitNo-1+stones)%14))!=0 ){
-//                    board.setStonesInPit((pitNo-1+stones)%14,0);
-//                    board.setStonesInPit(6,1+ board.getStonesInPit(12-((pitNo-1+stones)%14)));
-//                    board.setStonesInPit(12-((pitNo-1+stones)%14),0);
-//                }
-//            }
-//
-//        }
-        return true;
+    public boolean isPlayer1Active() {
+        return board.isPlayer1Active();
     }
+    public boolean isAllEmpty( boolean isPlayer1Active){
+        if(board.isMySideEmpty(isPlayer1Active)){
+            for(int i=1;i<=6;i++){
+                board.setStonesInPitByPlayer(7, board.getStonesInPitByPlayer(7,!isPlayer1Active)+board.getStonesInPitByPlayer(i,!isPlayer1Active),!isPlayer1Active );
+                board.setStonesInPitByPlayer(i,0,!isPlayer1Active);
+            }
+            return true;
+        }
+        return false;
+    }
+    public int minimax(Board board , boolean isPlayer1Active, int depth, int maxDepth,boolean isMax, int heuristicID, int alpha, int beta){
+        if(depth==0)
+            Heuristic.setHeuristicID(heuristicID);
+        if(depth== maxDepth){
+            return Heuristic.getHeuristicVal(board);
+        }
+        if(isAllEmpty(isPlayer1Active)){
+            return Heuristic.getHeuristicVal(board);
+        }
+        board.setChildren(isPlayer1Active);
+        Board[] children= board.getChildren();
+        int  maxID=-1;
+        int  minID=-1;
+        int offset=0;
+        if(isPlayer1Active())offset=7;
+        for(int i=0;i<6;i++){
+            if(board.getStonesInPit(i+offset)!=0){
+                int val= minimax(children[i],!isPlayer1Active,depth+1,maxDepth,!isMax,heuristicID,alpha, beta);
+                if(isMax && val>alpha){
+                    alpha=val;
+                    maxID=i;
+
+                }
+                else if(!isMax && val<beta){
+                    beta=val;
+                    minID=i;
+                }
+                if(alpha>beta){
+//                    System.out.println("yasssssssss\n\n\n\n\n");
+//                    board.printBoard();
+                    if(!isMax) {
+                        board.setNextId(minID+1);
+                        return beta;
+                    }
+                    board.setNextId(maxID+1);
+                    return alpha;
+                }
+            }
+        }
+        if(isMax){
+            board.setNextId(maxID+1);
+            return alpha;
+        }
+        else{
+            board.setNextId(minID+1);
+            return beta;
+        }
+
+    }
+
 
 }
