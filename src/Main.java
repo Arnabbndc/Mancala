@@ -7,24 +7,14 @@ public class Main {
     private static int getNextMove(Game game, int autoPlay){
         if(game.isPlayer1Active()&& autoPlay!=1)return scanner.nextInt();
         if(game.isPlayer1Active()&& autoPlay==1){
-            game.minimax(game.getBoard(),true,0,5,false,1, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            game.minimax(game.getBoard(),true,0,11,1, Integer.MIN_VALUE, Integer.MAX_VALUE);
         }
-        else game.minimax(game.getBoard(),false,0,5,true,1, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        else game.minimax(game.getBoard(),false,0,15,1, Integer.MIN_VALUE, Integer.MAX_VALUE);
         return game.getBoard().getNextId();
     }
 
     public static void main(String[] args) {
-//        // Press Alt+Enter with your caret at the highlighted text to see how
-//        // IntelliJ IDEA suggests fixing it.
-//        System.out.println("Hello and welcome!");
-//
-//        // Press Shift+F10 or click the green arrow button in the gutter to run the code.
-//        for (int i = 1; i <= 5; i++) {
-//
-//            // Press Shift+F9 to start debugging your code. We have set one breakpoint
-//            // for you, but you can always add more by pressing Ctrl+F8.
-//            System.out.println("i = " + i);
-//        }
+
         System.out.println("Autoplay? Press:\n1. Yes\n2. No");
         int autoPlay = scanner.nextInt()%2;
         Game game = new Game();

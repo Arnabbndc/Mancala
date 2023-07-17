@@ -22,52 +22,66 @@ public class Game {
         }
         return false;
     }
-    public int minimax(Board board , boolean isPlayer1Active, int depth, int maxDepth,boolean isMax, int heuristicID, int alpha, int beta){
+    public int minimax(Board board , boolean isPlayer1Active, int depth, int maxDepth, int heuristicID, int alpha, int beta){
+//        System.out.println(isPlayer1Active+" "+alpha+" "+beta);
         if(depth==0)
             Heuristic.setHeuristicID(heuristicID);
-        if(depth== maxDepth){
+        if(depth== maxDepth || board.getStonesInPit(13)>24 || board.getStonesInPit(6)>24){
             return Heuristic.getHeuristicVal(board);
         }
         if(isAllEmpty(isPlayer1Active)){
             return Heuristic.getHeuristicVal(board);
         }
-        board.setChildren(isPlayer1Active);
-        Board[] children= board.getChildren();
-        int  maxID=-1;
-        int  minID=-1;
+//        board.setChildren(isPlayer1Active);
+        int[] copyBoard=  new int[14];
+        for(int i=0;i<14;i++)
+            copyBoard[i]=board.getStonesInPit(i);
+//        Board[] children= board.getChildren();
+        int  max= Integer.MIN_VALUE, maxID=-1;
+        int  min= Integer.MAX_VALUE,minID=-1;
         int offset=0;
-        if(isPlayer1Active())offset=7;
+        if(isPlayer1Active)offset=7;
         for(int i=0;i<6;i++){
             if(board.getStonesInPit(i+offset)!=0){
-                int val= minimax(children[i],!isPlayer1Active,depth+1,maxDepth,!isMax,heuristicID,alpha, beta);
-                if(isMax && val>alpha){
-                    alpha=val;
+                board.choosePitForMove(i+1, isPlayer1Active);
+                int val= minimax(board,!isPlayer1Active,depth+1,maxDepth,heuristicID,alpha, beta);
+                for(int j=0;j<14;j++){
+                    board.setStonesInPit(j,copyBoard[j]);
+                }
+                board.setPlayer1Active(isPlayer1Active);
+                if(!isPlayer1Active && val>max){
+                    max=val;
                     maxID=i;
+                    if(alpha<max)
+                        alpha=max;
 
                 }
-                else if(!isMax && val<beta){
-                    beta=val;
+                else if(isPlayer1Active && val<min){
+                    min=val;
                     minID=i;
+                    if(beta>min)
+                        beta=min;
                 }
-                if(alpha>beta){
+                if(alpha>=beta){
 //                    System.out.println("yasssssssss\n\n\n\n\n");
 //                    board.printBoard();
-                    if(!isMax) {
+                    if(isPlayer1Active) {
                         board.setNextId(minID+1);
-                        return beta;
+                        return min;
                     }
                     board.setNextId(maxID+1);
-                    return alpha;
+                    return max;
                 }
+
             }
         }
-        if(isMax){
+        if(!isPlayer1Active){
             board.setNextId(maxID+1);
-            return alpha;
+            return max;
         }
         else{
             board.setNextId(minID+1);
-            return beta;
+            return min;
         }
 
     }
