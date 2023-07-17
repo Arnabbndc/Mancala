@@ -7,9 +7,9 @@ public class Main {
     private static int getNextMove(Game game, int autoPlay){
         if(game.isPlayer1Active()&& autoPlay!=1)return scanner.nextInt();
         if(game.isPlayer1Active()&& autoPlay==1){
-            game.minimax(game.getBoard(),true,0,11,1, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            game.minimax(game.getBoard(),0,12,1, Integer.MIN_VALUE, Integer.MAX_VALUE);
         }
-        else game.minimax(game.getBoard(),false,0,15,1, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        else game.minimax(game.getBoard(),0,11,1, Integer.MIN_VALUE, Integer.MAX_VALUE);
         return game.getBoard().getNextId();
     }
 
@@ -45,6 +45,7 @@ public class Main {
                 continue;
             }
             game.getBoard().choosePitForMove(pit, game.isPlayer1Active());
+            game.setPlayer1Active(game.getBoard().isPlayer1Active());
             game.getBoard().printBoard();
             if(game.getBoard().getStonesInPit(6)>24 || game.getBoard().getStonesInPit(13)>24) break;
             if(game.isAllEmpty(game.isPlayer1Active()) || game.isAllEmpty(!game.isPlayer1Active()))
